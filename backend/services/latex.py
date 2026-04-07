@@ -5,7 +5,12 @@ def generate_pdf(data):
         template = f.read()
 
     tex = template.replace("NAME_PLACEHOLDER", data.get("name", "Your Name"))
-    tex = tex.replace("SKILLS_PLACEHOLDER", ", ".join(data.get("skills", [])))
+    skills = data.get("skills", "")
+    if isinstance(skills, list):
+        skills_str = ", ".join(skills)
+    else:
+        skills_str = skills
+    tex = tex.replace("SKILLS_PLACEHOLDER", skills_str)
     tex = tex.replace("EXPERIENCE_PLACEHOLDER", data.get("experience", ""))
     tex = tex.replace("EDUCATION_PLACEHOLDER", data.get("education", ""))
 

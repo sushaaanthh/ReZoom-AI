@@ -313,9 +313,18 @@ h3 { font-size: 24px; font-weight: 600; }
 }
 
 .feature-icon {
-    font-size: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin-bottom: 20px;
     animation: bounce 2s ease-in-out infinite;
+}
+
+.feature-icon svg {
+    width: 56px;
+    height: 56px;
+    stroke: var(--primary);
+    stroke-width: 1.5;
 }
 
 @keyframes bounce {
@@ -381,6 +390,17 @@ h3 { font-size: 24px; font-weight: 600; }
     text-decoration: underline;
     text-decoration-color: rgba(255, 255, 255, 0.5);
     text-underline-offset: 4px;
+}
+
+.footer-heart {
+    display: inline-block;
+    vertical-align: middle;
+    width: 18px;
+    height: 18px;
+    stroke: #FFFFFF;
+    fill: #FFFFFF;
+    stroke-width: 2;
+    margin: 0 2px;
 }
 
 /* ==========================================
@@ -460,8 +480,16 @@ h3 { font-size: 24px; font-weight: 600; }
 }
 
 .sidebar-btn .icon {
-    font-size: 20px;
+    display: flex;
+    align-items: center;
     transition: var(--transition);
+}
+
+.sidebar-btn .icon svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    stroke-width: 2;
 }
 
 .sidebar-btn .label {
@@ -657,8 +685,17 @@ input[type="file"] {
 }
 
 .upload-icon {
-    font-size: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin-bottom: 12px;
+}
+
+.upload-icon svg {
+    width: 48px;
+    height: 48px;
+    stroke: var(--primary);
+    stroke-width: 1.5;
 }
 
 .upload-text {
