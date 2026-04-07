@@ -1,4 +1,4 @@
-function switchTab(tab) {
+function switchTab(tab, event) {
   const sections = ["builder", "match"];
 
   sections.forEach(id => {
