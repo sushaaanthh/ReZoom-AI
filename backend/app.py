@@ -1,49 +1,37 @@
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
-
-from services.parser import parse_resume
-from services.matcher import match_resume, prioritize_sections
-from services.latex import generate_pdf
-from services.ai_suggestions import get_suggestions
+from services.parser import extract_text
+from services.matcher import calculate_match
+from services.latex import generate_latex
+import os
 
 app = Flask(__name__)
-CORS(app)
+CORS(app) # Allow frontend to communicate with backend
 
-@app.route("/parse", methods=["POST"])
-def parse():
-    file = request.files.get("file")
+@app.route('/parse', methods=['POST'])
+def parse_resume():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+    
+    file = request.files['file']
+    text = extract_text(file)
+    return jsonify({"extracted_text": text, "status": "success"})
 
-    if not file:
-        return {"error": "No file uploaded"}, 400
-
-    data = parse_resume(file)
-    return jsonify(data)
-
-@app.route("/match", methods=["POST"])
-def match():
+@app.route('/match', methods=['POST'])
+def match_job():
     data = request.json
+    resume_text = data.get('resume', '')
+    job_desc = data.get('job_description', '')
+    
+    match_results = calculate_match(resume_text, job_desc)
+    return jsonify(match_results)
 
-    result = match_resume(data["resume"], data["job"])
-    return jsonify(result)
-
-@app.route("/prioritize", methods=["POST"])
-def prioritize():
+@app.route('/generate', methods=['POST'])
+def generate_pdf():
     data = request.json
+    # In a real app, this compiles base.tex via pdflatex
+    pdf_path = generate_latex(data) 
+    return jsonify({"message": "PDF generated successfully", "download_url": "/downloads/resume.pdf"})
 
-    result = prioritize_sections(data["sections"], data["job"])
-    return jsonify(result)
-
-@app.route("/suggest", methods=["POST"])
-def suggest():
-    data = request.json
-
-    suggestions = get_suggestions(data["resume"], data["job"])
-    return jsonify(suggestions)
-
-@app.route("/generate", methods=["POST"])
-def generate():
-    pdf = generate_pdf(request.json)
-    return send_file(pdf, as_attachment=True)
-
-if __name__ == "__main__":
-    app.run(debug=True)
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)

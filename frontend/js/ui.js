@@ -1,18 +1,18 @@
-function switchTab(tab, event) {
-  const sections = ["builder", "match"];
+export const updateDashboardUI = (data) => {
+    if (!data) return;
 
-  sections.forEach(id => {
-    document.getElementById(id).classList.add("hidden");
-  });
+    // Update Score with a slight animation
+    const scoreEl = document.getElementById('match-score');
+    scoreEl.innerText = `${data.score}%`;
+    scoreEl.style.transform = "scale(1.1)";
+    setTimeout(() => scoreEl.style.transform = "scale(1)", 200);
 
-  document.getElementById(tab).classList.remove("hidden");
-  
-  // Update active state for sidebar buttons
-  const buttons = document.querySelectorAll('.sidebar-btn');
-  buttons.forEach(btn => {
-    btn.classList.remove('active');
-  });
-  
-  // Set active button
-  event.target.closest('.sidebar-btn').classList.add('active');
-}
+    // Update missing keywords
+    const missingList = document.getElementById('missing-keywords');
+    missingList.innerHTML = '';
+    data.missing_keywords.forEach(keyword => {
+        const li = document.createElement('li');
+        li.innerText = keyword;
+        missingList.appendChild(li);
+    });
+};

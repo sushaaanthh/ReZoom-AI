@@ -1,24 +1,23 @@
-\documentclass{article}
-\usepackage[margin=1in]{geometry}
-\usepackage{titlesec}
-
-\titleformat{\section}{\large\bfseries}{}{0em}{}
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
 
 \begin{document}
-
 \begin{center}
-    {\LARGE \textbf{NAME_PLACEHOLDER}} \\
+    {\Huge \textbf{<<NAME>>}} \\
+    \vspace{2mm}
+    <<EMAIL>> | <<PHONE>>
 \end{center}
 
-\vspace{0.5cm}
+\vspace{5mm}
+\noindent\textbf{\Large Skills} \\
+\rule{\textwidth}{0.4pt}
+<<SKILLS>>
 
-\section*{Skills}
-SKILLS_PLACEHOLDER
-
-\section*{Experience}
-EXPERIENCE_PLACEHOLDER
-
-\section*{Education}
-EDUCATION_PLACEHOLDER
+\vspace{5mm}
+\noindent\textbf{\Large Experience} \\
+\rule{\textwidth}{0.4pt}
+<<EXPERIENCE>>
 
 \end{document}

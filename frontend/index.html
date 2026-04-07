@@ -1,78 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ReZoom AI - ATS-Optimized Resume Builder</title>
-  <link rel="stylesheet" href="css/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReZoom AI | ATS-Optimized Builder</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body>
+<body class="dark-mode"> 
+    
+    <nav class="glass-panel main-nav">
+        <div class="logo">ReZoom AI</div>
+        <div class="nav-actions">
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Theme">
+                <i data-lucide="sun" id="theme-icon"></i>
+            </button>
+            <a href="dashboard.html" class="btn-primary">Start Building</a>
+        </div>
+    </nav>
 
-<div class="hero">
-  <div class="hero-content">
-    <h1>ReZoom AI</h1>
-    <p>ATS-Optimized Resume Builder & Analyzer</p>
-    <a href="dashboard.html" class="btn">Start Building</a>
-  </div>
-</div>
+    <main class="hero">
+        <h1>Build the Perfect Resume.<br><span class="text-amber">Beat the ATS.</span></h1>
+        <p>AI-powered matching, smart prioritization, and beautiful LaTeX exports perfectly tailored for your next role.</p>
+        
+        <div class="feature-grid">
+            <div class="glass-panel feature-card">
+                <i data-lucide="layout-template"></i>
+                <h3>Smart Builder</h3>
+                <p>Dynamic, section-based editing with real-time tracking.</p>
+            </div>
+            <div class="glass-panel feature-card">
+                <i data-lucide="target"></i>
+                <h3>Job Match</h3>
+                <p>Compare your resume against any job description instantly.</p>
+            </div>
+            <div class="glass-panel feature-card">
+                <i data-lucide="sparkles"></i>
+                <h3>AI Suggestions</h3>
+                <p>Discover missing keywords and phrasing improvements.</p>
+            </div>
+        </div>
+    </main>
 
-<div class="features-section">
-  <div class="container">
-    <h2 class="section-title">Powerful Features</h2>
-    <div class="features-grid">
-      
-      <div class="feature-card">
-        <div class="feature-icon"><i data-lucide="file-text"></i></div>
-        <h3>ATS Formatter</h3>
-        <p>Build ATS-optimized resumes with our intelligent formatter that ensures your resume passes through Applicant Tracking Systems</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon"><i data-lucide="target"></i></div>
-        <h3>Resume Matcher</h3>
-        <p>Match your resume against job descriptions with AI-powered analysis to maximize your chances of getting noticed</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon"><i data-lucide="bot"></i></div>
-        <h3>AI-Powered Suggestions</h3>
-        <p>Get intelligent recommendations to improve your resume content and formatting based on industry best practices</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon"><i data-lucide="bar-chart-2"></i></div>
-        <h3>Match Score Analysis</h3>
-        <p>Receive detailed match scores showing how well your resume aligns with job requirements</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon"><i data-lucide="zap"></i></div>
-        <h3>Instant Export</h3>
-        <p>Export your optimized resume to PDF format instantly, ready to submit to employers</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon"><i data-lucide="search"></i></div>
-        <h3>Keyword Detection</h3>
-        <p>Identify missing keywords and optimize your resume to include critical terms from job descriptions</p>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-<footer class="footer">
-  <div class="container">
-    <p>Created with <i data-lucide="heart" class="footer-heart"></i> by <strong>Team B5</strong></p>
-  </div>
-</footer>
-
-<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
-<script>
-  if (window.lucide?.createIcons) {
-    window.lucide.createIcons();
-  }
-</script>
-
+    <script type="module" src="js/app.js"></script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>

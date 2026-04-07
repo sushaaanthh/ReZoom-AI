@@ -1,34 +1,17 @@
-def match_resume(resume, job):
-    resume_words = set(resume.lower().split())
-    job_words = set(job.lower().split())
-
-    matched = resume_words & job_words
-    missing = job_words - resume_words
-
-    score = int((len(matched) / (len(job_words) + 1)) * 100)
-
+# Simple functional mock for the AI Matching Engine
+def calculate_match(resume_text, job_desc):
+    resume_words = set(resume_text.lower().split())
+    job_words = set(job_desc.lower().split())
+    
+    # Exclude common stop words in a real app
+    matched = list(resume_words.intersection(job_words))
+    missing = list(job_words.difference(resume_words))
+    
+    score = (len(matched) / len(job_words)) * 100 if job_words else 0
+    
     return {
-        "score": score,
-        "matched": list(matched)[:20],
-        "missing": list(missing)[:20]
+        "score": round(score),
+        "matched_keywords": matched[:10], # Top 10
+        "missing_keywords": missing[:5],
+        "suggestions": ["Add missing skills to your skills section", "Quantify your past experience"]
     }
-
-
-def prioritize_sections(sections, job):
-    job_words = set(job.lower().split())
-
-    scored_sections = []
-
-    for section in sections:
-        words = set(section["content"].lower().split())
-        relevance = len(words & job_words)
-
-        scored_sections.append({
-            "title": section["title"],
-            "content": section["content"],
-            "score": relevance
-        })
-
-    sorted_sections = sorted(scored_sections, key=lambda x: x["score"], reverse=True)
-
-    return sorted_sections
