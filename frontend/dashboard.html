@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - ReZoom AI</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>ReZoom AI</h2>
+    <button onclick="switchTab('builder')" class="sidebar-btn active">
+      <span class="icon">📝</span>
+      <span class="label">ATS Formatter</span>
+    </button>
+    <button onclick="switchTab('match')" class="sidebar-btn">
+      <span class="icon">🎯</span>
+      <span class="label">Resume Matcher</span>
+    </button>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+
+    <!-- BUILDER -->
+    <div id="builder" class="content-section">
+      <h2>ATS Formatter</h2>
+
+      <div class="form-group">
+        <label for="name">Full Name</label>
+        <input id="name" placeholder="Your Name" />
+      </div>
+
+      <div class="form-group">
+        <label for="skills">Skills</label>
+        <input id="skills" placeholder="Skills (comma separated)" />
+      </div>
+
+      <div class="form-group">
+        <label for="experience">Experience</label>
+        <textarea id="experience" placeholder="Describe your work experience..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="education">Education</label>
+        <textarea id="education" placeholder="Your educational background..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="fileInput">Upload Resume</label>
+        <div class="file-upload-wrapper">
+          <input type="file" id="fileInput">
+          <div class="file-upload-label">
+            <span class="upload-icon">📄</span>
+            <span class="upload-text">Choose a file or drag it here</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button onclick="uploadResume()" class="btn-primary">
+          <span>Upload Resume</span>
+        </button>
+        <button onclick="generatePDF()" class="btn-secondary">
+          <span>Export to PDF</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- MATCH -->
+    <div id="match" class="content-section hidden">
+      <h2>Resume Matcher</h2>
+
+      <div class="form-group">
+        <label for="resumeInput">Resume Text</label>
+        <textarea id="resumeInput" placeholder="Paste your resume content here..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="jobInput">Job Description</label>
+        <textarea id="jobInput" placeholder="Paste the job description here..."></textarea>
+      </div>
+
+      <div class="button-group">
+        <button onclick="match()" class="btn-primary">
+          <span>Analyze Match</span>
+        </button>
+        <button onclick="getSuggestions()" class="btn-secondary">
+          <span>Get Suggestions</span>
+        </button>
+        <button onclick="generatePDF()" class="btn-secondary">
+          <span>Export to PDF</span>
+        </button>
+      </div>
+
+      <div id="results-section" class="results-section">
+        <h3 id="score" class="score-display"></h3>
+        <div id="keywords" class="keywords-display"></div>
+        <div id="suggestions" class="suggestions-display"></div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
