@@ -13,3 +13,17 @@ export const analyzeMatch = async (resumeText, jobDesc) => {
         return null;
     }
 };
+
+export const generatePDF = async (payload) => {
+    try {
+        const response = await fetch(`${API_URL}/generate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        return await response.json();
+    } catch (error) {
+        console.error("API Error:", error);
+        return null;
+    }
+};

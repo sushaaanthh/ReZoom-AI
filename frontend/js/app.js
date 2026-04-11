@@ -1,4 +1,5 @@
-import { analyzeMatch, parsePDF, generatePDF } from './api.js';
+// Removed the broken parsePDF import
+import { analyzeMatch, generatePDF } from './api.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Theme Toggle
@@ -13,20 +14,33 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 2. Tab Switching Logic
+    // 2. Tab Switching Logic & Panel Visibility
     const navIcons = document.querySelectorAll('.nav-icon');
     const tabContents = document.querySelectorAll('.tab-content');
+    const analyticsPanel = document.getElementById('analytics-panel');
     
+    // Hide panel by default on load (since Maker is the default tab)
+    analyticsPanel.classList.add('hidden');
+
     navIcons.forEach(icon => {
         icon.addEventListener('click', () => {
-            // Remove active class from all
+            if(!icon.hasAttribute('data-target')) return; // Ignore theme toggle
+
+            // Remove active class from all tabs and icons
             navIcons.forEach(nav => nav.classList.remove('active'));
             tabContents.forEach(tab => tab.classList.remove('active'));
             
-            // Add active class to clicked
+            // Activate the clicked tab
             icon.classList.add('active');
             const targetId = icon.getAttribute('data-target');
             document.getElementById(targetId).classList.add('active');
+
+            // Handle Right Panel Visibility
+            if (targetId === 'tab-score') {
+                analyticsPanel.classList.remove('hidden');
+            } else {
+                analyticsPanel.classList.add('hidden');
+            }
         });
     });
 
@@ -49,22 +63,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 const formData = new FormData();
                 formData.append('file', e.target.files[0]);
                 
-                // Show loading on the upload box
                 const uploadBox = e.target.parentElement;
                 const originalHTML = uploadBox.innerHTML;
                 uploadBox.innerHTML = '<i data-lucide="loader" class="spin"></i><p>Parsing PDF...</p>';
                 lucide.createIcons();
 
-                const response = await fetch('http://localhost:5000/parse', {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await response.json();
+                try {
+                    const response = await fetch('http://localhost:5000/parse', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await response.json();
+                    document.getElementById('maker-exp').value = data.extracted_text || "Could not extract text.";
+                } catch (error) {
+                    alert("Error parsing PDF. Ensure backend is running.");
+                }
                 
-                // Auto-fill form (basic extraction)
-                document.getElementById('maker-exp').value = data.extracted_text;
-                
-                // Restore box
                 uploadBox.innerHTML = originalHTML;
                 lucide.createIcons();
             }
@@ -89,8 +103,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const response = await generatePDF(payload);
             if(response && response.download_url) {
-                // In a real app, trigger actual download here
-                alert("PDF Generated! Available at: " + response.download_url);
+                alert("PDF Generated! Endpoint returned: " + response.download_url);
+            } else {
+                alert("Generation failed. Check backend terminal for LaTeX errors.");
             }
             
             btnExportMaker.innerHTML = '<i data-lucide="download"></i> Export as PDF';
@@ -110,24 +125,25 @@ document.addEventListener('DOMContentLoaded', () => {
             btnCheckScore.innerHTML = '<i data-lucide="loader" class="spin"></i> Analyzing...';
             lucide.createIcons();
 
-            // First parse the PDF
-            const formData = new FormData();
-            formData.append('file', fileInput);
-            const parseRes = await fetch('http://localhost:5000/parse', { method: 'POST', body: formData });
-            const parseData = await parseRes.json();
+            try {
+                const formData = new FormData();
+                formData.append('file', fileInput);
+                const parseRes = await fetch('http://localhost:5000/parse', { method: 'POST', body: formData });
+                const parseData = await parseRes.json();
 
-            // Then match it
-            const matchData = await analyzeMatch(parseData.extracted_text, jobDesc);
-            
-            // Update UI
-            document.getElementById('live-score').innerText = `${matchData.score}%`;
-            const missingList = document.getElementById('live-missing');
-            missingList.innerHTML = '';
-            matchData.missing_keywords.forEach(kw => {
-                const li = document.createElement('li');
-                li.innerText = kw;
-                missingList.appendChild(li);
-            });
+                const matchData = await analyzeMatch(parseData.extracted_text, jobDesc);
+                
+                document.getElementById('live-score').innerText = `${matchData.score}%`;
+                const missingList = document.getElementById('live-missing');
+                missingList.innerHTML = '';
+                matchData.missing_keywords.forEach(kw => {
+                    const li = document.createElement('li');
+                    li.innerText = kw;
+                    missingList.appendChild(li);
+                });
+            } catch (error) {
+                alert("Analysis failed. Ensure backend is running.");
+            }
 
             btnCheckScore.innerHTML = '<i data-lucide="activity"></i> Analyze Score';
             lucide.createIcons();
