@@ -7,10 +7,11 @@ export const analyzeMatch = async (resumeText, jobDesc) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ resume: resumeText, job_description: jobDesc })
         });
-        return await response.json();
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Failed to analyze match');
+        return data;
     } catch (error) {
-        console.error("API Error:", error);
-        return null;
+        throw error;
     }
 };
 
@@ -21,9 +22,10 @@ export const generatePDF = async (payload) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
-        return await response.json();
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Failed to generate PDF');
+        return data;
     } catch (error) {
-        console.error("API Error:", error);
-        return null;
+        throw error;
     }
 };

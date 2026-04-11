@@ -4,13 +4,10 @@ import uuid
 
 def generate_latex(data):
     base_dir = os.path.dirname(os.path.dirname(__file__))
-    
-    # 1. Determine which template to use based on frontend input
     template_name = data.get("template", "base")
     template_file = f"{template_name}.tex"
     template_path = os.path.join(base_dir, "templates", template_file)
     
-    # Fallback if template doesn't exist
     if not os.path.exists(template_path):
         template_path = os.path.join(base_dir, "templates", "base.tex")
 
@@ -25,15 +22,10 @@ def generate_latex(data):
         with open(template_path, 'r', encoding='utf-8') as file:
             tex_content = file.read()
             
-        # Data Injection
-        tex_content = tex_content.replace("<<NAME>>", escape_latex(data.get("name", "Your Name")))
+        tex_content = tex_content.replace("<<NAME>>", escape_latex(data.get("name", "Applicant")))
         tex_content = tex_content.replace("<<EMAIL>>", escape_latex(data.get("email", "email@example.com")))
+        tex_content = tex_content.replace("<<EDUCATION>>", escape_latex(data.get("education", "")))
         
-        # Handle Education
-        edu_text = escape_latex(data.get("education", ""))
-        tex_content = tex_content.replace("<<EDUCATION>>", edu_text)
-        
-        # Handle Skills list
         skills = data.get("skills", "").split(",")
         skills_latex = "\\begin{itemize}\n"
         for skill in skills:
@@ -47,19 +39,22 @@ def generate_latex(data):
         with open(tex_filename, 'w', encoding='utf-8') as file:
             file.write(tex_content)
             
-        for _ in range(2):
-            subprocess.run(
-                ["pdflatex", "-interaction=nonstopmode", f"-output-directory={output_dir}", tex_filename],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                check=True
-            )
+        process = subprocess.run(
+            ["pdflatex", "-interaction=nonstopmode", f"-output-directory={output_dir}", tex_filename],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        
+        if process.returncode != 0:
+            raise RuntimeError("LaTeX compilation failed. Ensure pdflatex is configured properly.")
             
         return f"/outputs/{pdf_filename}"
         
+    except FileNotFoundError:
+        raise FileNotFoundError("pdflatex executable not found. A TeX distribution is required in the system PATH.")
     except Exception as e:
-        print(f"Error in LaTeX generation: {e}")
-        return None
+        raise Exception(f"Document generation exception: {str(e)}")
 
 def escape_latex(text):
     chars = {'&': r'\&', '%': r'\%', '$': r'\$', '#': r'\#', '_': r'\_', '{': r'\{', '}': r'\}'}
