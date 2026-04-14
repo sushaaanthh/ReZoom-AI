@@ -1,10 +1,27 @@
+async function handleResponse(response) {
+    const contentType = response.headers.get("content-type");
+    
+    if (contentType && contentType.includes("application/json")) {
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || `Server Error: ${response.status}`);
+        }
+        return data;
+    }
+    
+    throw new Error(`Invalid response endpoint. Access the app directly via http://127.0.0.1:5000`);
+}
+
 export const parsePDF = async (formData) => {
     try {
-        const response = await fetch('/parse', { method: 'POST', body: formData });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Failed to parse document');
-        return data;
-    } catch (error) { throw error; }
+        const response = await fetch('/parse', {
+            method: 'POST',
+            body: formData
+        });
+        return await handleResponse(response);
+    } catch (error) {
+        throw error;
+    }
 };
 
 export const optimizeResume = async (payload) => {
@@ -14,10 +31,10 @@ export const optimizeResume = async (payload) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Optimization failed');
-        return data;
-    } catch (error) { throw error; }
+        return await handleResponse(response);
+    } catch (error) {
+        throw error;
+    }
 };
 
 export const analyzeMatch = async (resumeText, jobDesc) => {
@@ -27,10 +44,10 @@ export const analyzeMatch = async (resumeText, jobDesc) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ resume: resumeText, job_description: jobDesc })
         });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Failed to analyze match');
-        return data;
-    } catch (error) { throw error; }
+        return await handleResponse(response);
+    } catch (error) {
+        throw error;
+    }
 };
 
 export const generatePDF = async (payload) => {
@@ -40,8 +57,8 @@ export const generatePDF = async (payload) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Failed to generate PDF');
-        return data;
-    } catch (error) { throw error; }
+        return await handleResponse(response);
+    } catch (error) {
+        throw error;
+    }
 };
