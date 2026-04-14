@@ -1,66 +1,44 @@
 import os
 import subprocess
-import uuid
-import shutil
-
-def generate_latex(data):
-    if not shutil.which("pdflatex"):
-        raise EnvironmentError(
-            "pdflatex compiler not found. You must install MiKTeX (Windows) or TeX Live (Mac/Linux) and add it to your system PATH."
-        )
-
-    base_dir = os.path.dirname(os.path.dirname(__file__))
-    template_name = data.get("template", "base")
-    template_file = f"{template_name}.tex"
-    template_path = os.path.join(base_dir, "templates", template_file)
-    
-    if not os.path.exists(template_path):
-        template_path = os.path.join(base_dir, "templates", "base.tex")
-
-    output_dir = os.path.join(base_dir, "outputs")
-    os.makedirs(output_dir, exist_ok=True)
-    
-    unique_id = str(uuid.uuid4())[:8]
-    tex_filename = os.path.join(output_dir, f"resume_{unique_id}.tex")
-    pdf_filename = f"resume_{unique_id}.pdf"
-    
-    try:
-        with open(template_path, 'r', encoding='utf-8') as file:
-            tex_content = file.read()
-            
-        tex_content = tex_content.replace("<<NAME>>", escape_latex(data.get("name", "Applicant")))
-        tex_content = tex_content.replace("<<EMAIL>>", escape_latex(data.get("email", "email@example.com")))
-        tex_content = tex_content.replace("<<EDUCATION>>", escape_latex(data.get("education", "")))
-        
-        skills = data.get("skills", "").split(",")
-        skills_latex = "\\begin{itemize}\n"
-        for skill in skills:
-            if skill.strip():
-                skills_latex += f"    \\item {escape_latex(skill.strip())}\n"
-        skills_latex += "\\end{itemize}"
-        
-        tex_content = tex_content.replace("<<SKILLS>>", skills_latex)
-        tex_content = tex_content.replace("<<EXPERIENCE>>", escape_latex(data.get("experience", "")))
-        
-        with open(tex_filename, 'w', encoding='utf-8') as file:
-            file.write(tex_content)
-            
-        process = subprocess.run(
-            ["pdflatex", "-interaction=nonstopmode", f"-output-directory={output_dir}", tex_filename],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True
-        )
-        
-        if process.returncode != 0:
-            raise RuntimeError(f"LaTeX compilation failed: {process.stderr}")
-            
-        return f"/outputs/{pdf_filename}"
-        
-    except Exception as e:
-        raise Exception(f"Document generation exception: {str(e)}")
+from jinja2 import Environment, FileSystemLoader
 
 def escape_latex(text):
-    chars = {'&': r'\&', '%': r'\%', '$': r'\$', '#': r'\#', '_': r'\_', '{': r'\{', '}': r'\}'}
+    if not isinstance(text, str): return text
+    chars = { '&': r'\&', '%': r'\%', '$': r'\$', '#': r'\#', '_': r'\_', '{': r'\{', '}': r'\}', '~': r'\textasciitilde{}', '^': r'\^{}', '\\': r'\textbackslash{}'}
     for k, v in chars.items(): text = text.replace(k, v)
     return text
+
+def clean_data(data):
+    if isinstance(data, dict): return {k: clean_data(v) for k, v in data.items()}
+    elif isinstance(data, list): return [clean_data(v) for v in data]
+    return escape_latex(data)
+
+def generate_latex(data):
+    env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), '..', 'templates')), block_start_string=r'\BLOCK{', block_end_string='}', variable_start_string=r'\VAR{', variable_end_string='}')
+    template_name = data.get('template', 'classic') + '.tex'
+    template = env.get_template(template_name)
+    
+    safe_data = clean_data(data)
+    rendered_tex = template.render(**safe_data)
+    
+    output_dir = os.path.join(os.path.dirname(__file__), '..', 'outputs')
+    os.makedirs(output_dir, exist_ok=True)
+    tex_path = os.path.join(output_dir, 'resume.tex')
+    pdf_path = os.path.join(output_dir, 'resume.pdf')
+    
+    # Delete old PDF to ensure we don't serve a stale one
+    if os.path.exists(pdf_path):
+        os.remove(pdf_path)
+    
+    with open(tex_path, 'w', encoding='utf-8') as f:
+        f.write(rendered_tex)
+        
+    # RUN COMPILER: We removed check=True so Python doesn't panic over minor LaTeX warnings!
+    process = subprocess.run(['pdflatex', '-interaction=nonstopmode', 'resume.tex'], cwd=output_dir, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    
+    # Check if the PDF actually exists, regardless of what LaTeX complained about
+    if not os.path.exists(pdf_path):
+        error_msg = process.stdout.decode('utf-8', errors='ignore')
+        raise RuntimeError(f"LaTeX failed to generate PDF completely. Log: {error_msg[-500:]}")
+        
+    return pdf_path

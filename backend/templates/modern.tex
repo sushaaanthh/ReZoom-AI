@@ -1,26 +1,70 @@
-\documentclass[11pt,a4paper]{article}
+\documentclass[10pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
-\usepackage{geometry}
-\usepackage[sfdefault]{roboto} % Modern Sans-Serif Font
+\usepackage[left=1.5cm,right=1.5cm,top=1.5cm,bottom=1.5cm]{geometry}
+\usepackage{paracol}
+\usepackage{titlesec}
+\usepackage{enumitem}
 \usepackage{xcolor}
-\geometry{a4paper, margin=0.8in}
-\definecolor{primary}{RGB}{44, 62, 80}
+
+\definecolor{primary}{HTML}{2C3E50} 
+
+\titleformat{\section}{\large\bfseries\color{primary}\centering\uppercase}{}{0em}{}[\vspace{-5pt}\color{primary}\hrule\vspace{5pt}]
+\titlespacing{\section}{0pt}{15pt}{10pt}
 
 \begin{document}
 \pagestyle{empty}
 
-{\Huge \textcolor{primary}{\textbf{<<NAME>>}}} \\
-\vspace{1mm}
-{\large <<EMAIL>>}
-\vspace{4mm}
+\begin{center}
+    \Huge\textbf{\VAR{name}}\par
+    \vspace{5pt}
+    \small \VAR{email} | \VAR{phone} | \VAR{linkedin}
+    \vspace{15pt}
+\end{center}
 
-\section*{\textcolor{primary}{Education}}
-\noindent <<EDUCATION>>
+\columnratio{0.4}
+\setlength{\columnsep}{2em}
 
-\section*{\textcolor{primary}{Experience}}
-\noindent <<EXPERIENCE>>
+\begin{paracol}{2}
 
-\section*{\textcolor{primary}{Technical Skills}}
-<<SKILLS>>
+% --- LEFT COLUMN ---
+\begin{leftcolumn}
+\raggedright
 
+\section*{Education}
+\BLOCK{for edu in education}
+\textbf{\VAR{edu.university}}\par
+\textit{\VAR{edu.degree}}\par
+\VAR{edu.city}, \VAR{edu.country} | \VAR{edu.grades}\par
+\VAR{edu.start} - \VAR{edu.end}\par\vspace{12pt}
+\BLOCK{endfor}
+
+\section*{Technical Skills}
+\BLOCK{for cat in tech_skills}
+\textbf{\VAR{cat.type}:} \VAR{cat.skills}\par\vspace{8pt}
+\BLOCK{endfor}
+
+\end{leftcolumn}
+
+% --- RIGHT COLUMN ---
+\begin{rightcolumn}
+\raggedright
+
+\section*{Professional Profile}
+\VAR{summary}\par
+
+\section*{Professional Experience}
+\BLOCK{for exp in experience}
+\textbf{\VAR{exp.company}} \hfill \VAR{exp.start} - \VAR{exp.end}\par
+\VAR{exp.description}\par\vspace{12pt}
+\BLOCK{endfor}
+
+\section*{Projects}
+\BLOCK{for proj in projects}
+\textbf{\VAR{proj.name}}\par
+\VAR{proj.description}\par\vspace{12pt}
+\BLOCK{endfor}
+
+\end{rightcolumn}
+
+\end{paracol}
 \end{document}

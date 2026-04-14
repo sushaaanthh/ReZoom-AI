@@ -1,79 +1,63 @@
 import os
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, send_file
 from flask_cors import CORS
-from dotenv import load_dotenv
+
+# Absolute pathing to guarantee the Landing Page loads
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+FRONTEND_DIR = os.path.abspath(os.path.join(BASE_DIR, '..', 'frontend'))
+
+app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path='')
+CORS(app)
 
 from services.parser import extract_and_structure
+from services.optimizer import optimize_resume_content
 from services.matcher import calculate_match
 from services.latex import generate_latex
-from services.optimizer import optimize_resume_content
-
-load_dotenv()
-
-frontend_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'frontend'))
-
-app = Flask(__name__, static_folder=frontend_folder, static_url_path='')
-CORS(app)
 
 @app.route('/')
 def serve_index():
     return send_from_directory(app.static_folder, 'index.html')
 
-@app.route('/<path:path>')
-def serve_static_files(path):
-    if os.path.exists(os.path.join(app.static_folder, path)):
-        return send_from_directory(app.static_folder, path)
-    return jsonify({"error": "File not found"}), 404
+@app.route('/dashboard.html')
+def serve_dashboard():
+    return send_from_directory(app.static_folder, 'dashboard.html')
 
 @app.route('/parse', methods=['POST'])
-def parse_resume():
+def parse_route():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
     try:
-        if 'file' not in request.files:
-            return jsonify({"error": "No file uploaded"}), 400
-        
-        file = request.files['file']
-        structured_data = extract_and_structure(file)
-        return jsonify({"data": structured_data, "status": "success"})
+        parsed_data = extract_and_structure(request.files['file'])
+        return jsonify({"data": parsed_data})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 @app.route('/optimize', methods=['POST'])
-def optimize_job():
+def optimize_route():
+    data = request.json
     try:
-        data = request.json
-        parsed_resume = data.get('parsed_resume')
-        job_desc = data.get('job_description')
-        
-        optimized_data = optimize_resume_content(parsed_resume, job_desc)
-        return jsonify({"data": optimized_data, "status": "success"})
+         optimized_data = optimize_resume_content(data['parsed_resume'], data['job_description'])
+         return jsonify({"data": optimized_data})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+         return jsonify({"error": str(e)}), 500
 
-@app.route('/match', methods=['POST'])
-def match_job():
+@app.route('/analyze', methods=['POST'])
+def analyze_route():
+    data = request.json
     try:
-        data = request.json
-        resume_text = data.get('resume', '')
-        job_desc = data.get('job_description', '')
-        
-        match_results = calculate_match(resume_text, job_desc)
+        match_results = calculate_match(data['resume_data'], data['job_description'], data['filename'])
         return jsonify(match_results)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 @app.route('/generate', methods=['POST'])
-def generate_pdf():
+def generate_route():
+    data = request.json
     try:
-        data = request.json
-        pdf_path = generate_latex(data) 
-        return jsonify({"message": "PDF generated successfully", "download_url": pdf_path})
+        pdf_file_path = generate_latex(data)
+        return send_file(pdf_file_path, as_attachment=True, download_name='ReZoom_Resume.pdf', mimetype='application/pdf')
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/outputs/<filename>')
-def serve_pdf(filename):
-    outputs_dir = os.path.join(os.path.dirname(__file__), 'outputs')
-    return send_from_directory(outputs_dir, filename, as_attachment=True)
-
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5000, debug=True)
+    app.run(debug=True)

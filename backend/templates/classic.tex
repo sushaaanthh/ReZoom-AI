@@ -1,0 +1,47 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[left=1in,right=1in,top=1in,bottom=1in]{geometry}
+\usepackage{titlesec}
+
+\titleformat{\section}{\large\bfseries\uppercase}{}{0em}{}[\titlerule]
+\titlespacing{\section}{0pt}{10pt}{5pt}
+\setlength{\parindent}{0pt}
+
+\begin{document}
+\pagestyle{empty}
+
+\begin{center}
+    \Huge\textbf{\VAR{name}}\par\vspace{5pt}
+    \small \VAR{email} | \VAR{phone} | \VAR{linkedin}\par
+\end{center}
+
+\section*{Professional Summary}
+\VAR{summary}\par
+
+\section*{Education}
+\BLOCK{for edu in education}
+\textbf{\VAR{edu.university}} \hfill \VAR{edu.start} - \VAR{edu.end}\par
+\textit{\VAR{edu.degree}} \hfill \VAR{edu.city}, \VAR{edu.country}\par
+Grades: \VAR{edu.grades}\par\vspace{10pt}
+\BLOCK{endfor}
+
+\section*{Work Experience}
+\BLOCK{for exp in experience}
+\textbf{\VAR{exp.company}} \hfill \VAR{exp.start} - \VAR{exp.end}\par
+\VAR{exp.description}\par\vspace{10pt}
+\BLOCK{endfor}
+
+\section*{Projects}
+\BLOCK{for proj in projects}
+\textbf{\VAR{proj.name}}\par
+\VAR{proj.description}\par\vspace{10pt}
+\BLOCK{endfor}
+
+\section*{Skills}
+\BLOCK{for cat in tech_skills}
+\textbf{\VAR{cat.type}:} \VAR{cat.skills}\par\vspace{5pt}
+\BLOCK{endfor}
+\vspace{5pt}
+\textbf{Soft Skills:} \BLOCK{for skill in soft_skills} \VAR{skill}, \BLOCK{endfor}\par
+
+\end{document}
