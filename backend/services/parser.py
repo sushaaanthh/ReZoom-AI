@@ -1,9 +1,9 @@
 import PyPDF2
 from io import BytesIO
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 import os
 import json
-import re
 
 def extract_and_structure(file_storage):
     try:
@@ -32,13 +32,12 @@ def structure_with_llm(text):
     if not api_key:
         raise EnvironmentError("GEMINI_API_KEY not found in environment variables.")
         
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-pro')
+    client = genai.Client(api_key=api_key)
     
     prompt = f"""
-    You are an ATS resume parser. Extract the following information from the provided text and return ONLY a valid JSON object. Do not include markdown formatting or backticks.
+    Extract the following information from the provided text.
     
-    Required JSON Schema:
+    Required Schema:
     {{
         "name": "Full Name",
         "email": "Email Address",
@@ -51,10 +50,16 @@ def structure_with_llm(text):
     {text}
     """
     
-    response = model.generate_content(prompt)
-    
     try:
-        cleaned_response = re.sub(r'^```json\s*|```\s*$', '', response.text.strip(), flags=re.MULTILINE)
-        return json.loads(cleaned_response)
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+            )
+        )
+        return json.loads(response.text)
     except json.JSONDecodeError:
         raise ValueError("Failed to parse LLM output into structured JSON.")
+    except Exception as e:
+        raise RuntimeError(f"LLM generation failed: {str(e)}")
