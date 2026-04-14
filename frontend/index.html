@@ -3,46 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ReZoom AI | ATS-Optimized Builder</title>
+    <title>ReZoom AI | ATS-Friendly Resume Builder</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="dark-mode"> 
+<body class="dark-mode">
     
-    <nav class="glass-panel main-nav">
-        <div class="logo">ReZoom AI</div>
+    <nav class="main-nav">
+        <div class="logo text-amber">ReZoom AI</div>
         <div class="nav-actions">
-            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Theme">
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme">
                 <i data-lucide="sun" id="theme-icon"></i>
             </button>
-            <a href="dashboard.html" class="btn-primary">Start Building</a>
         </div>
     </nav>
 
-    <main class="hero">
-        <h1>Build the Perfect Resume.<br><span class="text-amber">Beat the ATS.</span></h1>
-        <p>AI-powered matching, smart prioritization, and beautiful LaTeX exports perfectly tailored for your next role.</p>
+    <header class="hero">
+        <div class="hero-content fade-in">
+            <h1>Build the Perfect Resume.<br><span class="text-amber">Beat the ATS.</span></h1>
+            <p class="subtitle">AI-powered matching, smart prioritization, and beautiful LaTeX exports perfectly tailored for your next role.</p>
+            <div style="display: flex; justify-content: center; margin-top: 30px;">
+                <a href="dashboard.html" class="btn-primary" style="text-decoration: none;">
+                    Start Building <i data-lucide="arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="feature-grid" style="margin: 0 auto; padding: 0 20px 60px 20px;">
+        <div class="glass-panel feature-card fade-in" style="animation-delay: 0.1s;">
+            <i data-lucide="layout-template"></i>
+            <h3>Smart Builder</h3>
+            <p class="text-muted">Dynamic, section-based editing with real-time tracking.</p>
+        </div>
         
-        <div class="feature-grid">
-            <div class="glass-panel feature-card">
-                <i data-lucide="layout-template"></i>
-                <h3>Smart Builder</h3>
-                <p>Dynamic, section-based editing with real-time tracking.</p>
-            </div>
-            <div class="glass-panel feature-card">
-                <i data-lucide="target"></i>
-                <h3>Job Match</h3>
-                <p>Compare your resume against any job description instantly.</p>
-            </div>
-            <div class="glass-panel feature-card">
-                <i data-lucide="sparkles"></i>
-                <h3>AI Suggestions</h3>
-                <p>Discover missing keywords and phrasing improvements.</p>
-            </div>
+        <div class="glass-panel feature-card fade-in" style="animation-delay: 0.2s;">
+            <i data-lucide="target"></i>
+            <h3>Job Match</h3>
+            <p class="text-muted">Compare your resume against any job description instantly.</p>
+        </div>
+        
+        <div class="glass-panel feature-card fade-in" style="animation-delay: 0.3s;">
+            <i data-lucide="sparkles"></i>
+            <h3>AI Suggestions</h3>
+            <p class="text-muted">Discover missing keywords and phrasing improvements automatically.</p>
         </div>
     </main>
 
-    <script type="module" src="js/app.js"></script>
-    <script>lucide.createIcons();</script>
+    <script>
+        lucide.createIcons();
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            themeIcon.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
+            lucide.createIcons();
+        });
+    </script>
 </body>
 </html>
