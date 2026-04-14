@@ -1,14 +1,13 @@
-from google import genai
-from google.genai import types
+from groq import Groq
 import os
 import json
 
 def optimize_resume_content(parsed_data, job_desc):
-    api_key = os.getenv("GEMINI_API_KEY")
+    api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
-        raise EnvironmentError("GEMINI_API_KEY not found in environment variables.")
+        raise EnvironmentError("GROQ_API_KEY not found in environment variables.")
         
-    client = genai.Client(api_key=api_key)
+    client = Groq(api_key=api_key)
     
     prompt = f"""
     Rewrite the following resume experience and skills to align with the target job description.
@@ -26,18 +25,25 @@ def optimize_resume_content(parsed_data, job_desc):
     Target Job Description:
     {job_desc}
     """
-
+    
     try:
-        response = client.models.generate_content(
-            model='gemini-2.0-flash',
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-            )
+        completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are an expert career coach and ATS optimization algorithm. You must return ONLY a valid JSON object. No conversational text."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            model="llama-3.3-70b-versatile",
+            response_format={"type": "json_object"}
         )
-        return json.loads(response.text)
+        return json.loads(completion.choices[0].message.content)
     except json.JSONDecodeError:
         raise ValueError("Failed to parse LLM output into structured JSON.")
     except Exception as e:
-        print(f"GEMINI API ERROR: {str(e)}") # Added for debugging
+        print(f"GROQ API ERROR: {str(e)}")
         raise RuntimeError(f"LLM optimization failed: {str(e)}")

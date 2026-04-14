@@ -1,7 +1,6 @@
 import PyPDF2
 from io import BytesIO
-from google import genai
-from google.genai import types
+from groq import Groq
 import os
 import json
 
@@ -28,11 +27,11 @@ def extract_and_structure(file_storage):
         raise RuntimeError(f"Parsing failed: {str(e)}")
 
 def structure_with_llm(text):
-    api_key = os.getenv("GEMINI_API_KEY")
+    api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
-        raise EnvironmentError("GEMINI_API_KEY not found in environment variables.")
+        raise EnvironmentError("GROQ_API_KEY not found in environment variables.")
         
-    client = genai.Client(api_key=api_key)
+    client = Groq(api_key=api_key)
     
     prompt = f"""
     Extract the following information from the provided text.
@@ -51,16 +50,23 @@ def structure_with_llm(text):
     """
     
     try:
-        response = client.models.generate_content(
-            model='gemini-2.0-flash',
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-            )
+        completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are an expert ATS parser. You must return ONLY a valid JSON object matching the requested schema. No conversational text."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            model="llama3-8b-8192",
+            response_format={"type": "json_object"}
         )
-        return json.loads(response.text)
+        return json.loads(completion.choices[0].message.content)
     except json.JSONDecodeError:
         raise ValueError("Failed to parse LLM output into structured JSON.")
     except Exception as e:
-        print(f"GEMINI API ERROR: {str(e)}") # Added for debugging
+        print(f"GROQ API ERROR: {str(e)}")
         raise RuntimeError(f"LLM generation failed: {str(e)}")
