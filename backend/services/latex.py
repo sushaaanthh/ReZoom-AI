@@ -1,8 +1,14 @@
 import os
 import subprocess
 import uuid
+import shutil
 
 def generate_latex(data):
+    if not shutil.which("pdflatex"):
+        raise EnvironmentError(
+            "pdflatex compiler not found. You must install MiKTeX (Windows) or TeX Live (Mac/Linux) and add it to your system PATH."
+        )
+
     base_dir = os.path.dirname(os.path.dirname(__file__))
     template_name = data.get("template", "base")
     template_file = f"{template_name}.tex"
@@ -47,12 +53,10 @@ def generate_latex(data):
         )
         
         if process.returncode != 0:
-            raise RuntimeError("LaTeX compilation failed. Ensure pdflatex is configured properly.")
+            raise RuntimeError(f"LaTeX compilation failed: {process.stderr}")
             
         return f"/outputs/{pdf_filename}"
         
-    except FileNotFoundError:
-        raise FileNotFoundError("pdflatex executable not found. A TeX distribution is required in the system PATH.")
     except Exception as e:
         raise Exception(f"Document generation exception: {str(e)}")
 

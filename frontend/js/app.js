@@ -1,4 +1,4 @@
-import { analyzeMatch, generatePDF } from './api.js';
+import { analyzeMatch, generatePDF, parsePDF, optimizeResume } from './api.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeTheme();
@@ -8,6 +8,15 @@ document.addEventListener('DOMContentLoaded', () => {
     bindOptimizerEvents();
     bindAnalyzerEvents();
 });
+
+function triggerDownload(url, filename) {
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
 
 function showNotification(message, type = 'info') {
     let container = document.getElementById('notification-area');
@@ -23,7 +32,6 @@ function showNotification(message, type = 'info') {
     toast.innerText = message;
     
     container.appendChild(toast);
-    
     void toast.offsetWidth; 
     toast.classList.add('show');
     
@@ -100,19 +108,20 @@ function bindMakerEvents() {
             
             const uploadBox = e.target.parentElement;
             const originalHTML = uploadBox.innerHTML;
-            uploadBox.innerHTML = '<i data-lucide="loader" class="spin"></i><p>Parsing PDF...</p>';
+            uploadBox.innerHTML = '<i data-lucide="loader" class="spin"></i><p>Parsing PDF with AI...</p>';
             lucide.createIcons();
 
             try {
-                const response = await fetch('http://localhost:5000/parse', {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.error || "Failed to parse document");
+                const response = await parsePDF(formData);
+                const parsedData = response.data;
                 
-                document.getElementById('maker-exp').value = data.extracted_text || "";
-                showNotification("PDF parsed successfully", "success");
+                document.getElementById('maker-name').value = parsedData.name || "";
+                document.getElementById('maker-email').value = parsedData.email || "";
+                document.getElementById('maker-edu').value = parsedData.education || "";
+                document.getElementById('maker-exp').value = parsedData.experience || "";
+                document.getElementById('maker-skills').value = parsedData.skills || "";
+                
+                showNotification("PDF parsed and fields populated", "success");
             } catch (error) {
                 showNotification(error.message, "error");
             } finally {
@@ -141,8 +150,8 @@ function bindMakerEvents() {
             try {
                 const response = await generatePDF(payload);
                 if (response && response.download_url) {
-                    window.open(`http://localhost:5000${response.download_url}`, '_blank');
-                    showNotification("Resume generated successfully", "success");
+                    triggerDownload(response.download_url, 'ReZoom_Resume.pdf');
+                    showNotification("Resume downloaded successfully", "success");
                 }
             } catch (error) {
                 showNotification(error.message, "error");
@@ -169,33 +178,39 @@ function bindOptimizerEvents() {
         }
 
         const originalText = btnOptimize.innerHTML;
-        btnOptimize.innerHTML = '<i data-lucide="loader" class="spin"></i> Optimizing...';
+        btnOptimize.innerHTML = '<i data-lucide="loader" class="spin"></i> Optimizing with AI...';
         btnOptimize.disabled = true;
         lucide.createIcons();
 
         try {
             const formData = new FormData();
             formData.append('file', fileInput);
-            const parseRes = await fetch('http://localhost:5000/parse', { method: 'POST', body: formData });
-            const parseData = await parseRes.json();
-            if (!parseRes.ok) throw new Error(parseData.error || "Parsing failed");
+            
+            const parseRes = await parsePDF(formData);
+            
+            const optPayload = {
+                parsed_resume: parseRes.data,
+                job_description: jobDesc
+            };
+            
+            const optRes = await optimizeResume(optPayload);
 
-            const payload = {
-                name: "Tailored Applicant",
-                email: "tailored@example.com",
-                education: "Extracted Education",
-                experience: `[Optimized Content]\n\n${parseData.extracted_text.substring(0, 800)}`,
-                skills: "Optimized Skills",
+            const genPayload = {
+                name: parseRes.data.name || "Applicant Name",
+                email: parseRes.data.email || "email@example.com",
+                education: parseRes.data.education || "",
+                experience: optRes.data.optimized_experience,
+                skills: optRes.data.optimized_skills,
                 template: "modern"
             };
 
-            const response = await generatePDF(payload);
+            const response = await generatePDF(genPayload);
             if (response && response.download_url) {
                 document.getElementById('match-results').classList.remove('hidden');
                 document.getElementById('btn-export-match').onclick = () => {
-                    window.open(`http://localhost:5000${response.download_url}`, '_blank');
+                    triggerDownload(response.download_url, 'Optimized_Resume.pdf');
                 };
-                showNotification("Optimization complete", "success");
+                showNotification("Optimization complete. Ready for download.", "success");
             }
         } catch (error) {
             showNotification(error.message, "error");
@@ -228,11 +243,11 @@ function bindAnalyzerEvents() {
         try {
             const formData = new FormData();
             formData.append('file', fileInput);
-            const parseRes = await fetch('http://localhost:5000/parse', { method: 'POST', body: formData });
-            const parseData = await parseRes.json();
-            if (!parseRes.ok) throw new Error(parseData.error || "Parsing failed");
-
-            const matchData = await analyzeMatch(parseData.extracted_text, jobDesc);
+            
+            const parseData = await parsePDF(formData);
+            const fullRawText = Object.values(parseData.data).join(" ");
+            
+            const matchData = await analyzeMatch(fullRawText, jobDesc);
             
             document.getElementById('live-score').innerText = `${matchData.score}%`;
             const missingList = document.getElementById('live-missing');
