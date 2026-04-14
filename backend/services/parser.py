@@ -29,44 +29,23 @@ def extract_and_structure(file_storage):
 def structure_with_llm(text):
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
-        raise EnvironmentError("GROQ_API_KEY not found in environment variables.")
+        raise EnvironmentError("GROQ_API_KEY missing.")
         
     client = Groq(api_key=api_key)
-    
     prompt = f"""
-    Extract the following information from the provided text.
-    
-    Required Schema:
-    {{
-        "name": "Full Name",
-        "email": "Email Address",
-        "education": "Education details (Degree, Institution, Year)",
-        "experience": "Professional experience and projects",
-        "skills": "Comma separated list of skills"
-    }}
-    
-    Resume Text:
-    {text}
+    Extract the following information. Return ONLY valid JSON.
+    Schema: {{"name": "Full Name", "email": "Email Address", "education": "Education details", "experience": "Professional experience", "skills": "Comma separated skills"}}
+    Text: {text}
     """
-    
     try:
         completion = client.chat.completions.create(
             messages=[
-                {
-                    "role": "system",
-                    "content": "You are an expert ATS parser. You must return ONLY a valid JSON object matching the requested schema. No conversational text."
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
+                {"role": "system", "content": "You are a JSON-only ATS parser. No markdown, no conversational text."},
+                {"role": "user", "content": prompt}
             ],
-            model="llama3-8b-8192",
+            model="llama-3.3-70b-versatile",
             response_format={"type": "json_object"}
         )
         return json.loads(completion.choices[0].message.content)
-    except json.JSONDecodeError:
-        raise ValueError("Failed to parse LLM output into structured JSON.")
     except Exception as e:
-        print(f"GROQ API ERROR: {str(e)}")
-        raise RuntimeError(f"LLM generation failed: {str(e)}")
+        raise RuntimeError(f"LLM parsing failed: {str(e)}")
