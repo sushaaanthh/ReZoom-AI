@@ -26,10 +26,10 @@ def optimize_resume_content(parsed_data, job_desc):
     Target Job Description:
     {job_desc}
     """
-    
+
     try:
         response = client.models.generate_content(
-            model='gemini-1.5-flash',
+            model='gemini-2.0-flash',
             contents=prompt,
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
@@ -39,4 +39,5 @@ def optimize_resume_content(parsed_data, job_desc):
     except json.JSONDecodeError:
         raise ValueError("Failed to parse LLM output into structured JSON.")
     except Exception as e:
+        print(f"GEMINI API ERROR: {str(e)}") # Added for debugging
         raise RuntimeError(f"LLM optimization failed: {str(e)}")
