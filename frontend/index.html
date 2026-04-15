@@ -8,7 +8,6 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="dark-mode">
-    
     <nav class="main-nav">
         <div class="logo text-amber">ReZoom AI</div>
         <div class="nav-actions">
@@ -17,10 +16,9 @@
             </button>
         </div>
     </nav>
-
     <header class="hero">
         <div class="hero-content fade-in">
-            <h1>Build the Perfect Resume.<br><span class="text-amber">Beat the ATS.</span></h1>
+            <h1>Build the Perfect Resume.<br><span class="text-amber ats-heading-class">Beat the ATS.</span></h1>
             <p class="subtitle">AI-powered matching, smart prioritization, and beautiful LaTeX exports perfectly tailored for your next role.</p>
             <div style="display: flex; justify-content: center; margin-top: 30px;">
                 <a href="dashboard.html" class="btn-primary" style="text-decoration: none;">
@@ -29,32 +27,27 @@
             </div>
         </div>
     </header>
-
     <main class="feature-grid" style="margin: 0 auto; padding: 0 20px 60px 20px;">
         <div class="glass-panel feature-card fade-in" style="animation-delay: 0.1s;">
             <i data-lucide="layout-template"></i>
             <h3>Smart Builder</h3>
             <p class="text-muted">Dynamic, section-based editing with real-time tracking.</p>
         </div>
-        
         <div class="glass-panel feature-card fade-in" style="animation-delay: 0.2s;">
             <i data-lucide="target"></i>
             <h3>Job Match</h3>
             <p class="text-muted">Compare your resume against any job description instantly.</p>
         </div>
-        
         <div class="glass-panel feature-card fade-in" style="animation-delay: 0.3s;">
             <i data-lucide="sparkles"></i>
             <h3>AI Suggestions</h3>
             <p class="text-muted">Discover missing keywords and phrasing improvements automatically.</p>
         </div>
     </main>
-
     <script>
         lucide.createIcons();
         const themeToggle = document.getElementById('theme-toggle');
         const themeIcon = document.getElementById('theme-icon');
-        
         themeToggle.addEventListener('click', () => {
             document.body.classList.toggle('light-mode');
             const isLight = document.body.classList.contains('light-mode');

@@ -3,156 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - ReZoom AI</title>
+    <title>ReZoom AI | Dashboard</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="dark-mode dashboard-layout">
-    
-    <aside class="sidebar glass-panel">
-        <div class="logo-mark" title="ReZoom AI"><i data-lucide="hexagon" style="color: var(--primary);"></i></div>
-        <button class="nav-icon active" data-target="tab-maker" title="Resume Maker"><i data-lucide="edit-3"></i></button>
-        <button class="nav-icon" data-target="tab-match" title="Job Role Match"><i data-lucide="briefcase"></i></button>
-        <button class="nav-icon" data-target="tab-score" title="ATS Score Checker"><i data-lucide="bar-chart-2"></i></button>
-        
-        <div class="spacer"></div>
-        
-        <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Theme">
-            <i data-lucide="sun" id="theme-icon"></i>
-        </button>
-    </aside>
+<body class="dark-mode">
+    <div class="dashboard-layout">
+        <aside class="sidebar glass-panel">
+            <button class="nav-icon active" data-target="tab-maker" title="Smart Builder"><i data-lucide="layout-template"></i></button>
+            <button class="nav-icon" data-target="tab-match" title="Job Match"><i data-lucide="target"></i></button>
+            <button class="nav-icon" data-target="tab-score" title="ATS Analytics"><i data-lucide="sparkles"></i></button>
+            <div class="spacer"></div>
+            <button class="theme-toggle" id="theme-toggle"><i data-lucide="sun" id="theme-icon"></i></button>
+        </aside>
 
-    <main class="center-panel glass-panel relative-container">
-        
-        <section id="tab-maker" class="tab-content active fade-in">
-            <h2>ATS Friendly Resume Maker</h2>
-            <p class="subtitle">Build from scratch or auto-fill from an existing PDF.</p>
-            
-            <div class="action-row">
-                <div class="upload-box glass-card interactive-hover">
-                    <i data-lucide="upload-cloud"></i>
-                    <h4>Auto-fill via PDF</h4>
-                    <input type="file" id="maker-upload" accept=".pdf" class="hidden-upload">
-                    <p>Upload existing resume</p>
+        <main class="center-panel glass-panel">
+            <div id="tab-maker" class="tab-content active">
+                <h2>Smart Builder</h2>
+                <p class="subtitle">Upload an existing resume to auto-fill, or build from scratch.</p>
+                <div class="upload-box" style="margin-bottom: 30px;">
+                    <input type="file" id="maker-upload" class="hidden-upload" accept=".pdf">
+                    <i data-lucide="file-up"></i>
+                    <p>Drag & drop PDF or click to auto-fill</p>
                 </div>
-            </div>
-
-            <form id="maker-form" class="mt-4">
-                <div class="grid-2-col">
-                    <div class="form-group">
-                        <label>Full Name</label>
-                        <input type="text" id="maker-name" placeholder="John Doe">
+                <div id="dynamic-form" class="fade-in">
+                    <h3>1. Personal Information</h3>
+                    <div class="grid-2-col form-group">
+                        <div><label>Full Name</label><input type="text" id="maker-name"></div>
+                        <div><label>Email</label><input type="text" id="maker-email"></div>
+                        <div><label>Phone Number</label><input type="text" id="maker-phone"></div>
+                        <div><label>LinkedIn URL</label><input type="text" id="maker-linkedin"></div>
                     </div>
                     <div class="form-group">
-                        <label>Email Address</label>
-                        <input type="email" id="maker-email" placeholder="john@example.com">
+                        <h3>2. Professional Summary</h3>
+                        <textarea id="maker-summary" rows="4" placeholder="AI will generate this if left blank and a PDF is parsed..."></textarea>
                     </div>
-                </div>
-                
-                <div class="form-group">
-                    <label>Education</label>
-                    <textarea id="maker-edu" rows="2" placeholder="B.Tech in Computer Science, AMC Engineering College..."></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Experience & Projects</label>
-                    <textarea id="maker-exp" rows="4" placeholder="Developed a full-stack application..."></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Skills (comma separated)</label>
-                    <textarea id="maker-skills" rows="2" placeholder="Python, JavaScript, React..."></textarea>
-                </div>
-
-                <div class="template-selector mt-4">
-                    <label>Select Template</label>
-                    <div class="template-cards">
-                        <div class="template-card active" data-template="base">
-                            <div class="temp-preview classic"></div>
-                            <span>Classic LaTeX</span>
-                        </div>
-                        <div class="template-card" data-template="modern">
-                            <div class="temp-preview modern"></div>
-                            <span>Modern Minimal</span>
-                        </div>
-                        <div class="template-card" data-template="elegant">
-                            <div class="temp-preview elegant"></div>
-                            <span>Elegant Pro</span>
+                    <div class="dynamic-section" id="section-education">
+                        <h3>3. Education</h3>
+                        <div id="education-container"></div>
+                        <button class="btn-secondary mt-2" id="add-edu-btn"><i data-lucide="plus"></i> Add Education</button>
+                    </div>
+                    <div class="dynamic-section mt-4" id="section-experience">
+                        <h3>4. Work Experience</h3>
+                        <div id="experience-container"></div>
+                        <button class="btn-secondary mt-2" id="add-exp-btn"><i data-lucide="plus"></i> Add Experience</button>
+                    </div>
+                    <div class="dynamic-section mt-4" id="section-projects">
+                        <h3>5. Projects</h3>
+                        <div id="projects-container"></div>
+                        <button class="btn-secondary mt-2" id="add-proj-btn"><i data-lucide="plus"></i> Add Project</button>
+                    </div>
+                    <div class="dynamic-section mt-4" id="section-tech-skills">
+                        <h3>6. Technical Skills</h3>
+                        <div id="tech-skills-container"></div>
+                        <button class="btn-secondary mt-2" id="add-skill-btn"><i data-lucide="plus"></i> Add Skill Category</button>
+                    </div>
+                    <div class="form-group mt-4">
+                        <h3>7. Soft Skills</h3>
+                        <input type="text" id="maker-soft-skills" placeholder="E.g., Leadership, Communication, Time Management (Comma separated)">
+                    </div>
+                    <div class="form-group mt-4">
+                        <h3>Select Template</h3>
+                        <div class="template-cards">
+                            <div class="template-card active" data-template="classic">
+                                <div class="temp-preview classic"></div><p>Classic LaTeX</p>
+                            </div>
+                            <div class="template-card" data-template="modern">
+                                <div class="temp-preview modern"></div><p>Modern Minimal</p>
+                            </div>
+                            <div class="template-card" data-template="elegant">
+                                <div class="temp-preview elegant"></div><p>Elegant Pro</p>
+                            </div>
                         </div>
                     </div>
+                    <button id="btn-export-maker" class="btn-primary mt-4"><i data-lucide="download"></i> Export PDF</button>
                 </div>
-
-                <button type="button" id="btn-export-maker" class="btn-primary mt-4 w-100">
-                    <i data-lucide="download"></i> Export as PDF
-                </button>
-            </form>
-        </section>
-
-        <section id="tab-match" class="tab-content fade-in">
-            <h2>Job Role Match</h2>
-            <p class="subtitle">AI will rewrite and tailor your resume for a specific job.</p>
-
-            <div class="form-group mt-4">
-                <label>Upload Your Resume (PDF)</label>
-                <input type="file" id="match-upload" accept=".pdf" class="file-input">
             </div>
 
-            <div class="form-group">
-                <label>Target Job Description</label>
-                <textarea id="match-job-desc" rows="6" placeholder="Paste the full job description here..."></textarea>
+            <div id="tab-match" class="tab-content">
+                <h2>Job Match & Optimizer</h2>
+                <p class="subtitle">Tailor your resume to a specific job description.</p>
+                <div class="form-group">
+                    <label>Upload Current Resume</label>
+                    <input type="file" id="match-upload" class="file-input custom-file-input" accept=".pdf">
+                </div>
+                <div class="form-group">
+                    <label>Target Job Description</label>
+                    <textarea id="match-job-desc" rows="6"></textarea>
+                </div>
+                <button id="btn-optimize" class="btn-primary w-100"><i data-lucide="wand-2"></i> Optimize Resume</button>
+                <div id="match-results" class="results-box mt-4 hidden fade-in">
+                    <h4>Optimization Complete!</h4>
+                    <p>Your experience and skills have been rewritten to match the JD. Exporting in Classic style.</p>
+                    <button id="btn-export-match" class="btn-primary mt-2"><i data-lucide="download"></i> Download Optimized PDF</button>
+                </div>
             </div>
 
-            <button type="button" id="btn-optimize" class="btn-primary w-100">
-                <i data-lucide="wand-2"></i> Optimize Resume
-            </button>
-
-            <div id="match-results" class="results-box mt-4 hidden">
-                <h4>AI Optimization Complete</h4>
-                <p>Keywords injected, phrasing improved, and formatting aligned.</p>
-                <button type="button" id="btn-export-match" class="btn-secondary mt-2">
-                    <i data-lucide="download"></i> Download Tailored PDF
-                </button>
+            <div id="tab-score" class="tab-content">
+                <h2>Deep ATS Analysis</h2>
+                <p class="subtitle">Check your resume against ATS rules and keyword density.</p>
+                <div class="form-group">
+                    <label>Upload Resume to Score</label>
+                    <input type="file" id="score-upload" class="file-input custom-file-input" accept=".pdf">
+                </div>
+                <div class="form-group">
+                    <label>Target Job Description (Optional but recommended)</label>
+                    <textarea id="score-job-desc" rows="4"></textarea>
+                </div>
+                <button id="btn-check-score" class="btn-primary w-100"><i data-lucide="search"></i> Analyze Resume</button>
             </div>
-        </section>
+        </main>
 
-        <section id="tab-score" class="tab-content fade-in">
-            <h2>ATS Score Checker</h2>
-            <p class="subtitle">See how well your current resume matches a job description.</p>
-
-            <div class="form-group mt-4">
-                <label>Upload Your Resume (PDF)</label>
-                <input type="file" id="score-upload" accept=".pdf" class="file-input">
+        <aside id="analytics-panel" class="right-panel glass-panel hidden">
+            <h3>ATS Results</h3>
+            <div class="score-card">
+                <div class="score-circle"><span id="live-score">--</span></div>
+                <p>Match Score</p>
             </div>
-
-            <div class="form-group">
-                <label>Target Job Description</label>
-                <textarea id="score-job-desc" rows="6" placeholder="Paste the target job description..."></textarea>
+            <div class="mt-4">
+                <h4 class="text-amber">Rule Violations (Critical)</h4>
+                <ul id="live-violations" class="keyword-list" style="color: #e74c3c;">
+                    <li>Upload a PDF to see rules broken.</li>
+                </ul>
             </div>
-
-            <button type="button" id="btn-check-score" class="btn-primary w-100">
-                <i data-lucide="activity"></i> Analyze Score
-            </button>
-        </section>
-
-    </main>
-
-    <aside class="right-panel glass-panel" id="analytics-panel">
-        <h3>Live Analytics</h3>
-        
-        <div class="score-card mt-4">
-            <div class="score-circle" id="live-score">0%</div>
-            <p>ATS Compatibility</p>
-        </div>
-
-        <div class="suggestions-container mt-4">
-            <h4>Missing Keywords</h4>
-            <ul id="live-missing" class="keyword-list">
-                <li>Awaiting scan...</li>
-            </ul>
-        </div>
-    </aside>
-
+            <div class="mt-4">
+                <h4 class="text-amber">Missing Keywords</h4>
+                <ul id="live-missing" class="keyword-list">
+                    <li>Upload JD to analyze keywords.</li>
+                </ul>
+            </div>
+        </aside>
+    </div>
     <script type="module" src="js/app.js"></script>
-    <script>lucide.createIcons();</script>
 </body>
 </html>
