@@ -6,21 +6,19 @@ def calculate_match(resume_data, job_desc, filename):
     api_key = os.getenv("GROQ_API_KEY")
     client = Groq(api_key=api_key)
     
-    # RUTHLESS PROMPT: The AI only extracts, it does NOT calculate the score.
+    # We force the LLM to output 'required_skills' so we have a mathematical baseline.
     prompt = f"""
-    You are a strictly analytical Applicant Tracking System (ATS).
+    You are an Applicant Tracking System.
+    1. Analyze the Job Description and list the core technical skills and tools required into "required_skills".
+    2. Analyze the Resume Data.
+    3. Cross-reference them. List the EXACT technical skills from the Job Description that are MISSING from the Resume Data into "missing_keywords". 
+    Be brutal. If the resume does not explicitly state the skill, it is missing. Do not calculate a score.
     
-    Task:
-    1. Read the Target Job Description. Identify the absolute most critical hard skills, tools, and technical requirements.
-    2. Strictly cross-reference these EXACT terms with the Resume Data. 
-    3. If a term from the Job Description is NOT explicitly mentioned in the Resume Data, add it to the "missing_keywords" array. Be ruthless.
-    4. Check the filename: "{filename}". If it contains words like "CV", "Resume", or numbers (like years, e.g., 2024, 2026), add "Unprofessional filename formatting" to "rule_violations".
-    5. DO NOT calculate a score. Just return the arrays.
-    
-    RETURN EXACT JSON FORMAT NO MARKDOWN:
+    RETURN EXACT JSON NO MARKDOWN:
     {{
-        "missing_keywords": ["Exact Missing Skill 1", "Exact Missing Skill 2"],
-        "rule_violations": ["Filename violation", "Missing bullet points"]
+        "required_skills": ["skill1", "skill2", "skill3"],
+        "missing_keywords": ["skill2"],
+        "rule_violations": []
     }}
     
     Job Description: 
@@ -31,16 +29,15 @@ def calculate_match(resume_data, job_desc, filename):
     """
     
     try:
-        # temperature=0.0 strips all "creativity" and leniency from the AI
         completion = client.chat.completions.create(
-            messages=[{"role": "system", "content": "You are a JSON-only ATS text comparator. No markdown."}],
+            messages=[{"role": "system", "content": "You are a JSON-only ATS extractor. No markdown."}],
             model="llama-3.3-70b-versatile",
             response_format={"type": "json_object"},
             temperature=0.0 
         )
         raw_content = completion.choices[0].message.content.strip()
         
-        # Safely stripping markdown without breaking the UI
+        # Safe markdown stripping
         marker = "`" * 3
         if raw_content.startswith(marker + "json"):
             raw_content = raw_content[7:]
@@ -49,21 +46,39 @@ def calculate_match(resume_data, job_desc, filename):
             
         parsed_result = json.loads(raw_content.strip())
         
+        # Extract the arrays
+        required_kws = parsed_result.get("required_skills", [])
         missing = parsed_result.get("missing_keywords", [])
         violations = parsed_result.get("rule_violations", [])
         
-        # --- PYTHON DOES THE MATH ---
-        if not job_desc or len(job_desc.strip()) < 5:
-            missing = ["Provide a Target Job Description to analyze keywords."]
-            score = 40
-        else:
-            # Start at 100, deduct 10 for every missing skill, deduct 15 for every broken rule
-            score = 100 - (len(missing) * 10) - (len(violations) * 15)
+        filename_lower = filename.lower()
+        if any(word in filename_lower for word in ["cv", "resume", "2024", "2025", "2026", "2027"]):
+            violations.append("Unprofessional filename (contains CV/Resume/Year)")
             
-        # Floor the score at 0 so it doesn't go into negative numbers
+        # --- THE RUTHLESS MATH TRAP ---
+        total_required = len(required_kws)
+        if total_required == 0 or not job_desc or len(job_desc.strip()) < 5:
+            # Fallback if no JD is provided or LLM fails to find skills
+            return {
+                "score": 10,
+                "missing_keywords": ["Provide a detailed Target Job Description to analyze keywords."],
+                "rule_violations": violations
+            }
+            
+        missing_count = len(missing)
+        
+        # Calculate ratio of matched skills
+        match_ratio = max(0, total_required - missing_count) / total_required
+        
+        # Exponential failure curve. (e.g. 50% match becomes 35% score)
+        score = int((match_ratio ** 1.5) * 100)
+        
+        # Deduct 20 flat points for every rule violation
+        score -= (len(violations) * 20)
+        
+        # Ensure score stays between 0 and 100
         score = max(0, min(100, score))
         
-        # Re-pack the JSON with the mathematically perfect score
         return {
             "score": score,
             "missing_keywords": missing,

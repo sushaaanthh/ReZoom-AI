@@ -1,68 +1,111 @@
 \documentclass[10pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
-\usepackage[left=1.5cm,right=1.5cm,top=1.5cm,bottom=1.5cm]{geometry}
+\usepackage[left=1cm,right=1cm,top=1cm,bottom=1cm]{geometry}
 \usepackage{paracol}
 \usepackage{titlesec}
-\usepackage{enumitem}
 \usepackage{xcolor}
 
-\definecolor{primary}{HTML}{2C3E50} 
+% --- CRITICAL FIX: Spaces in { #1 } prevent Jinja2 compiler crashes ---
+\newcommand{\VAR}[1]{ #1 }
+\newcommand{\BLOCK}[1]{ }
 
-\titleformat{\section}{\large\bfseries\color{primary}\centering\uppercase}{}{0em}{}[\vspace{-5pt}\color{primary}\hrule\vspace{5pt}]
-\titlespacing{\section}{0pt}{15pt}{10pt}
+% --- PREMIUM COLORS ---
+\definecolor{sidebarbg}{HTML}{1A1A1A} % Deep Black/Dark Grey
+\definecolor{accent}{HTML}{F1C40F}    % Striking Yellow
+\definecolor{textwhite}{HTML}{FFFFFF}
+\definecolor{textblack}{HTML}{222222}
+
+% Right column section styling
+\titleformat{\section}{\large\bfseries\color{textblack}\uppercase}{}{0em}{}[\vspace{-5pt}\color{accent}\hrule\vspace{5pt}]
+\titlespacing{\section}{0pt}{10pt}{5pt}
+
+% Left column custom section styling
+% INCREASED SPACING: Added 25pt of vertical space before the header to separate sections
+\newcommand{\leftsection}[1]{
+    \vspace{25pt} 
+    \noindent\textbf{\large\color{textwhite}\uppercase{ #1 }}
+    \vspace{8pt}\par
+}
 
 \begin{document}
 \pagestyle{empty}
 
-\begin{center}
-    \Huge\textbf{\VAR{name}}\par
-    \vspace{5pt}
-    \small \VAR{email} | \VAR{phone} | \VAR{linkedin}
-    \vspace{15pt}
-\end{center}
-
-\columnratio{0.4}
+% Configure Two-Column Layout
+\columnratio{0.35}
 \setlength{\columnsep}{2em}
+\backgroundcolor{c[0]}[HTML]{1A1A1A} % Fill left column
 
 \begin{paracol}{2}
 
-% --- LEFT COLUMN ---
+% ===============================
+%        LEFT SIDEBAR
+% ===============================
 \begin{leftcolumn}
 \raggedright
+\color{textwhite} 
+\vspace*{10pt}
 
-\section*{Education}
-\BLOCK{for edu in education}
-\textbf{\VAR{edu.university}}\par
-\textit{\VAR{edu.degree}}\par
-\VAR{edu.city}, \VAR{edu.country} | \VAR{edu.grades}\par
-\VAR{edu.start} - \VAR{edu.end}\par\vspace{12pt}
-\BLOCK{endfor}
+% Name Block
+\colorbox{accent}{
+    \parbox{\dimexpr\linewidth-2\fboxsep\relax}{
+        \vspace{10pt}
+        \centering
+        \color{textblack}
+        \Huge\textbf{\VAR{name}}
+        \vspace{10pt}
+    }
+}\par\vspace{10pt} % Adjusted space below name block
 
-\section*{Technical Skills}
+\leftsection{Profile}
+\small \VAR{summary}\par
+
+\leftsection{Contact}
+\small
+\textbf{Phone:} \VAR{phone}\par\vspace{6pt}
+\textbf{Email:} \VAR{email}\par\vspace{6pt}
+\textbf{LinkedIn:} \VAR{linkedin}\par
+
+\leftsection{Skills}
 \BLOCK{for cat in tech_skills}
-\textbf{\VAR{cat.type}:} \VAR{cat.skills}\par\vspace{8pt}
+\textbf{\VAR{cat.type}}\par
+\VAR{cat.skills}\par\vspace{12pt} % Increased space between skill categories
 \BLOCK{endfor}
+
+\BLOCK{if soft_skills}
+\leftsection{Soft Skills}
+\BLOCK{for skill in soft_skills} \VAR{skill}\BLOCK{if not loop.last}, \BLOCK{endif}\BLOCK{endfor}\par
+\BLOCK{endif}
 
 \end{leftcolumn}
 
-% --- RIGHT COLUMN ---
+% ===============================
+%        RIGHT CONTENT
+% ===============================
 \begin{rightcolumn}
 \raggedright
+\color{textblack}
+\vspace*{10pt}
 
-\section*{Professional Profile}
-\VAR{summary}\par
-
-\section*{Professional Experience}
+\section*{Work Experience}
 \BLOCK{for exp in experience}
 \textbf{\VAR{exp.company}} \hfill \VAR{exp.start} - \VAR{exp.end}\par
-\VAR{exp.description}\par\vspace{12pt}
+\VAR{exp.description}\par\vspace{10pt}
 \BLOCK{endfor}
 
+\section*{Education}
+\BLOCK{for edu in education}
+\textbf{\VAR{edu.degree}}\par
+\textit{\VAR{edu.university}} \hfill \VAR{edu.start} - \VAR{edu.end}\par
+\small \VAR{edu.city}, \VAR{edu.country} | Grades: \VAR{edu.grades}\par\vspace{10pt}
+\BLOCK{endfor}
+
+\BLOCK{if projects}
 \section*{Projects}
 \BLOCK{for proj in projects}
 \textbf{\VAR{proj.name}}\par
-\VAR{proj.description}\par\vspace{12pt}
+\VAR{proj.description}\par\vspace{10pt}
 \BLOCK{endfor}
+\BLOCK{endif}
 
 \end{rightcolumn}
 

@@ -1,47 +1,51 @@
 \documentclass[10pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
-\usepackage[left=1.5cm,right=1.5cm,top=1.5cm,bottom=1.5cm]{geometry}
+\usepackage[left=1.2cm,right=1.2cm,top=1.2cm,bottom=1.2cm]{geometry}
 \usepackage{paracol}
 \usepackage{titlesec}
 \usepackage{enumitem}
 \usepackage{xcolor}
 
-\definecolor{primary}{HTML}{2C3E50} 
-
-\titleformat{\section}{\large\bfseries\color{primary}\centering\uppercase}{}{0em}{}[\vspace{-5pt}\color{primary}\hrule\vspace{5pt}]
-\titlespacing{\section}{0pt}{15pt}{10pt}
+\definecolor{darkgray}{HTML}{333333}
+\titleformat{\section}{\large\bfseries\color{darkgray}\uppercase}{}{0em}{}[\titlerule]
+\titlespacing{\section}{0pt}{12pt}{6pt}
 
 \begin{document}
 \pagestyle{empty}
 
-\begin{center}
-    \Huge\textbf{\VAR{name}}\par
-    \vspace{5pt}
-    \small \VAR{email} | \VAR{phone} | \VAR{linkedin}
-    \vspace{15pt}
-\end{center}
-
-\columnratio{0.4}
-\setlength{\columnsep}{2em}
+\columnratio{0.35}
+\setlength{\columnsep}{2em} 
 
 \begin{paracol}{2}
 
 % --- LEFT COLUMN ---
 \begin{leftcolumn}
-\raggedright
+\raggedright 
+
+\noindent\Huge\textbf{\VAR{name}}\par\vspace{5pt}
+\large\textit{Professional Profile}\par\vspace{15pt}
+
+\section*{Contact}
+\small
+\textbf{E:} \VAR{email}\par
+\textbf{P:} \VAR{phone}\par
+\textbf{L:} \VAR{linkedin}\par
 
 \section*{Education}
 \BLOCK{for edu in education}
-\textbf{\VAR{edu.university}}\par
-\textit{\VAR{edu.degree}}\par
-\VAR{edu.city}, \VAR{edu.country} | \VAR{edu.grades}\par
-\VAR{edu.start} - \VAR{edu.end}\par\vspace{12pt}
+\textbf{\VAR{edu.degree}}\par
+\textit{\VAR{edu.university}}\par
+\VAR{edu.start} - \VAR{edu.end}\par\vspace{8pt}
 \BLOCK{endfor}
 
-\section*{Technical Skills}
+\section*{Skills}
 \BLOCK{for cat in tech_skills}
-\textbf{\VAR{cat.type}:} \VAR{cat.skills}\par\vspace{8pt}
+\textbf{\VAR{cat.type}:}\par
+\VAR{cat.skills}\par\vspace{8pt}
 \BLOCK{endfor}
+\vspace{5pt}
+\textbf{Soft Skills:}\par
+\BLOCK{for skill in soft_skills} \VAR{skill}, \BLOCK{endfor}\par
 
 \end{leftcolumn}
 
@@ -49,19 +53,19 @@
 \begin{rightcolumn}
 \raggedright
 
-\section*{Professional Profile}
+\section*{About Me}
 \VAR{summary}\par
 
-\section*{Professional Experience}
+\section*{Work Experience}
 \BLOCK{for exp in experience}
 \textbf{\VAR{exp.company}} \hfill \VAR{exp.start} - \VAR{exp.end}\par
-\VAR{exp.description}\par\vspace{12pt}
+\VAR{exp.description}\par\vspace{10pt}
 \BLOCK{endfor}
 
 \section*{Projects}
 \BLOCK{for proj in projects}
 \textbf{\VAR{proj.name}}\par
-\VAR{proj.description}\par\vspace{12pt}
+\VAR{proj.description}\par\vspace{10pt}
 \BLOCK{endfor}
 
 \end{rightcolumn}
