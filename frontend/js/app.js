@@ -259,7 +259,7 @@ function bindAnalyzerEvents() {
                 const violations = matchData.rule_violations || [];
                 document.getElementById('live-violations').innerHTML = violations.length > 0
                     ? violations.map(rule => `<li>${rule}</li>`).join('')
-                    : `<li style="color: #2ecc71;">Perfect ATS Formatting!</li>`;
+                    : "<span class='text-green-500'>No critical violations found.</span>";
                     
             } catch(error) { alert("Analysis Error: " + error.message); }
             finally { btnCheckScore.innerHTML = btnOriginal; }
