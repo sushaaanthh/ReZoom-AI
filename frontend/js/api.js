@@ -1,11 +1,13 @@
+const API_BASE = 'https://rezoom-backend.onrender.com';
+
 export const parsePDF = async (formData) => {
-    const res = await fetch('/parse', { method: 'POST', body: formData });
+    const res = await fetch(`${API_BASE}/parse`, { method: 'POST', body: formData });
     if (!res.ok) throw new Error(await res.text());
     return res.json();
 };
 
 export const optimizeResume = async (payload) => {
-    const res = await fetch('/optimize', {
+    const res = await fetch(`${API_BASE}/optimize`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
     });
     if (!res.ok) throw new Error(await res.text());
@@ -13,7 +15,7 @@ export const optimizeResume = async (payload) => {
 };
 
 export const analyzeMatch = async (resumeJsonStr, jobDesc, filename) => {
-    const res = await fetch('/analyze', {
+    const res = await fetch(`${API_BASE}/analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ resume_data: resumeJsonStr, job_description: jobDesc, filename: filename })
@@ -23,7 +25,7 @@ export const analyzeMatch = async (resumeJsonStr, jobDesc, filename) => {
 };
 
 export const generatePDF = async (payload) => {
-    const res = await fetch('/generate', {
+    const res = await fetch(`${API_BASE}/generate`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
     });
     if (!res.ok) throw new Error(await res.text());
