@@ -14,22 +14,50 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('add-skill-btn').addEventListener('click', () => addTechSkill());
 
     addEducation(); addExperience(); addProject(); addTechSkill();
+    activateTab(getInitialTabTarget());
 });
+
+function getInitialTabTarget() {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    if (tab) return `tab-${tab.replace(/^tab-/, '')}`;
+
+    const hash = window.location.hash.replace('#', '');
+    if (hash) return hash;
+
+    return 'tab-maker';
+}
+
+function activateTab(targetId) {
+    const tab = document.querySelector(`.nav-icon[data-target="${targetId}"]`);
+    const content = document.getElementById(targetId);
+    const rightPanel = document.getElementById('analytics-panel');
+
+    if (!tab || !content) return;
+
+    document.querySelectorAll('.nav-icon').forEach(item => item.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(item => item.classList.remove('active'));
+
+    tab.classList.add('active');
+    content.classList.add('active');
+
+    if (rightPanel) {
+        if (targetId === 'tab-score') rightPanel.classList.remove('hidden');
+        else rightPanel.classList.add('hidden');
+    }
+
+    if (targetId === 'tab-maker') {
+        const firstInput = document.getElementById('maker-name');
+        if (firstInput) firstInput.focus({ preventScroll: true });
+    }
+}
 
 function initializeNavigation() {
     const tabs = document.querySelectorAll('.nav-icon');
-    const contents = document.querySelectorAll('.tab-content');
-    const rightPanel = document.getElementById('analytics-panel');
 
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
-            tabs.forEach(t => t.classList.remove('active'));
-            contents.forEach(c => c.classList.remove('active'));
-            tab.classList.add('active');
-            const targetId = tab.getAttribute('data-target');
-            document.getElementById(targetId).classList.add('active');
-            if (targetId === 'tab-score') rightPanel.classList.remove('hidden');
-            else rightPanel.classList.add('hidden');
+            activateTab(tab.getAttribute('data-target'));
         });
     });
 }
