@@ -41,7 +41,7 @@ Assign a relevance score from 0 to 1 based on match with JD keywords.
     - Most relevant bullet FIRST
 
 ---
-
+r-
 ### STEP 4: CONTEXTUAL REWRITING RULES
 - Use strong action verbs (Built, Developed, Optimized, Designed)
 - Map existing work to JD keywords IF logically valid
