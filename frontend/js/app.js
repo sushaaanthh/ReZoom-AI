@@ -1,6 +1,23 @@
 import { parsePDF, optimizeResume, analyzeMatch, generatePDF } from './api.js';
 
+function syncThemeUI() {
+    if (typeof window.updateThemeUI === 'function') {
+        window.updateThemeUI();
+    } else {
+        const themeIcon = document.getElementById('theme-icon');
+        if (themeIcon) {
+            const isLight = document.body.classList.contains('light-mode');
+            themeIcon.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
+        }
+    }
+
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        window.lucide.createIcons();
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    syncThemeUI();
     initializeTheme(); 
     initializeNavigation(); 
     initializeTemplateSelection();
@@ -31,20 +48,31 @@ function getInitialTabTarget() {
 function activateTab(targetId) {
     const tab = document.querySelector(`.nav-icon[data-target="${targetId}"]`);
     const content = document.getElementById(targetId);
+    const centerPanel = document.querySelector('.center-panel');
     const rightPanel = document.getElementById('analytics-panel');
 
     if (!tab || !content) return;
 
     document.querySelectorAll('.nav-icon').forEach(item => item.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(item => item.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(item => {
+        item.style.display = 'none';
+        item.style.opacity = '0';
+    });
 
     tab.classList.add('active');
     content.classList.add('active');
+    content.style.display = 'block';
+    content.style.opacity = '1';
 
     if (rightPanel) {
         if (targetId === 'tab-score') rightPanel.classList.remove('hidden');
         else rightPanel.classList.add('hidden');
+        rightPanel.style.display = targetId === 'tab-score' ? 'block' : 'none';
+        rightPanel.scrollTop = 0;
     }
+
+    if (centerPanel) centerPanel.scrollTop = 0;
 
     if (targetId === 'tab-maker') {
         const firstInput = document.getElementById('maker-name');
@@ -64,13 +92,10 @@ function initializeNavigation() {
 
 function initializeTheme() {
     const themeToggle = document.getElementById('theme-toggle');
-    const themeIcon = document.getElementById('theme-icon');
     if(themeToggle) {
         themeToggle.addEventListener('click', () => {
             document.body.classList.toggle('light-mode');
-            const isLight = document.body.classList.contains('light-mode');
-            themeIcon.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
-            lucide.createIcons();
+            syncThemeUI();
         });
     }
 }

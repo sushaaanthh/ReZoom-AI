@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="dark-mode">
+<body class="dark-mode" style="visibility: hidden;">
     <div class="dashboard-layout">
         <aside class="sidebar glass-panel">
             <button class="nav-icon active" data-target="tab-maker" title="Smart Builder"><i data-lucide="layout-template"></i></button>
@@ -134,6 +134,55 @@
             </div>
         </aside>
     </div>
+    <script>
+        function updateThemeUI() {
+            const themeIcon = document.getElementById('theme-icon');
+            if (!themeIcon) return;
+
+            const isLight = document.body.classList.contains('light-mode');
+            themeIcon.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
+        }
+
+        function activateDefaultDashboardView() {
+            const makerTab = document.getElementById('tab-maker');
+            const makerNav = document.querySelector('.nav-icon[data-target="tab-maker"]');
+
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+                tab.style.display = '';
+            });
+
+            document.querySelectorAll('.nav-icon').forEach(icon => {
+                icon.classList.remove('active');
+            });
+
+            if (makerTab) {
+                makerTab.classList.add('active');
+                makerTab.style.display = 'block';
+            }
+
+            if (makerNav) {
+                makerNav.classList.add('active');
+            }
+        }
+
+        function primeDashboardUI() {
+            activateDefaultDashboardView();
+            updateThemeUI();
+
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                window.lucide.createIcons();
+            }
+
+            document.body.style.visibility = 'visible';
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', primeDashboardUI, { once: true });
+        } else {
+            primeDashboardUI();
+        }
+    </script>
     <script type="module" src="js/app.js"></script>
 </body>
 </html>
