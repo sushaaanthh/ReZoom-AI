@@ -42,7 +42,7 @@ def structure_with_llm(text):
     try:
         completion = client.chat.completions.create(
             messages=[{"role": "system", "content": "Return ONLY valid JSON."}, {"role": "user", "content": prompt}],
-            model="llama-3.3-70b-versatile",
+            model="llama-3.3-70b-specdec",
             response_format={"type": "json_object"}
         )
         return json.loads(completion.choices[0].message.content)

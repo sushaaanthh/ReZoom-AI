@@ -181,7 +181,7 @@ def _extract_jd_requirements(job_desc: str, client: Groq) -> dict:
             },
             {"role": "user", "content": prompt},
         ],
-        model="llama-3.3-70b-versatile",
+        model="llama-3.3-70b-specdec",
         response_format={"type": "json_object"},
         temperature=0.0,
         max_tokens=512,

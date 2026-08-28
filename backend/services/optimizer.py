@@ -113,7 +113,7 @@ Soft Skills: {parsed_data.get('soft_skills', [])}
                     "content": prompt_content
                 }
             ],
-            model="llama-3.3-70b-versatile",
+            model="llama-3.3-70b-specdec",
             response_format={"type": "json_object"},
             temperature=0.1  # Lower = more deterministic ranking
         )
